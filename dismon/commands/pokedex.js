@@ -124,12 +124,27 @@ module.exports = {
 
         P.getPokemonSpeciesByName(pokemon)
             .then(function(response) {
+                var evolvesFrom = []
+                var evolvesTo = []
                 var imgURL = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/"+response.pokedex_numbers[0].entry_number+".png"
 
                 const { body } = request(imgURL);
 	            const avatar = loadImage(imgURL).then((image) => {
                     context.drawImage(image, 30, 30, 747, 747)
                 })
+
+                /*if(response.evolves_from_species === null) {
+                    evolvesFrom = ["none"]
+                } else {
+                    evolutionChain = response.evolution_chain.replaceAll("https://pokeapi.co/api/v2/evolution-chain/", "").replaceAll("/", "");
+                    P.getEvolutionChainById(evolutionChain).then((response) => {
+                        evolvesFrom = [
+                            [ "base", chain.species.name ],
+                            [ "levelOne", chain.evolves_to[0].species ]
+                            [ "levelTwo", chain.evolves_to[0].evolves_to.species.name ]
+                        ]
+                    })
+                }*/
                 //const avatarURL = loadImage(imgURL)
 
                 //context.drawImage(avatar, 30, 30, 747, 747)
