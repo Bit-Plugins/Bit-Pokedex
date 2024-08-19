@@ -2,6 +2,20 @@ const { SlashCommandBuilder, ButtonBuilder, EmbedBuilder, Permission, MessageBut
 const dismondb = require("dismondb");
 
 module.exports = {
+
+    cooldown: 5,
+
+    integration_types: {
+        user: true,
+        guild: true,
+    },
+
+    context_types: {
+		guildChannel: true,
+		botDM: true,
+		privateChannel: true,
+	},
+    
     data: new SlashCommandBuilder()
         .setName('typedex')
         .setDescription('Get information on a specific type')
