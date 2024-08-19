@@ -3,6 +3,20 @@ const Pokedex = require('pokedex-promise-v2');
 var P = new Pokedex();
 
 module.exports = {
+
+    cooldown: 5,
+
+    integration_types: {
+        user: true,
+        guild: true,
+    },
+
+    context_types: {
+		guildChannel: true,
+		botDM: true,
+		privateChannel: true,
+	},
+    
     data: new SlashCommandBuilder()
         .setName('itemdex')
         .setDescription('Get information on a specific item')
