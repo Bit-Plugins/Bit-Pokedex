@@ -5,6 +5,7 @@ const { readFile } = require('fs/promises');
 const { request } = require('undici');
 const Pokedex = require('pokedex-promise-v2');
 var P = new Pokedex();
+const core = require("bit/core")
 
 module.exports = {
 
@@ -40,22 +41,19 @@ module.exports = {
 
         let pokemon = pokemonChoice.toLowerCase().replaceAll(" ", "-");
 
-        fs.stat('./plugins/dismon/assets/generatedImages/'+pokemon+'.png', function(err, stat) {
+        fs.stat('./databases/dismon/assets/generatedImages/'+pokemon+'.png', function(err, stat) {
             if(err == null) {
                 fileExists = true;
-                console.log("File Exists")
             } else if(err.code === 'ENOET') {
                 fileExists = false;
-                console.log("File Does Not Exist")
             } else {
                 fileExists = false;
-                console.log("File Does Not Exist or is broken")
             }
         })
 
         setTimeout(function () {
             if(fileExists === true) {
-                const attachment = new AttachmentBuilder("./plugins/dismon/assets/generatedImages/"+pokemon+".png");
+                const attachment = new AttachmentBuilder("./databases/dismon/assets/generatedImages/"+pokemon+".png");
                 interaction.editReply({ files: [attachment]});
             } else {
                 const applyText = (camvas, text) => {
@@ -211,7 +209,7 @@ module.exports = {
                                 })
                             }, 2000)
                         } else {
-                            console.log(err)
+                            core.log(2, "Dismon", true, err)
                         }
                     })
                 P.getPokemonByName(pokemon)
@@ -324,7 +322,7 @@ module.exports = {
                                 })
                             }, 2000)
                         } else {
-                            console.log(err)
+                            core.log(2, "Dismon", true, err)
                         }
                     })
         
@@ -332,7 +330,7 @@ module.exports = {
                         if(continueGeneration) {
                             const attachment = new AttachmentBuilder(canvas.toBuffer('image/png'), { name: pokemon+'.png' });
 
-                            fs.writeFileSync('./plugins/dismon/assets/generatedImages/'+pokemon+".png", canvas.toBuffer('image/png'))
+                            fs.writeFileSync('./databases/dismon/assets/generatedImages/'+pokemon+".png", canvas.toBuffer('image/png'))
                             interaction.editReply({ files: [attachment]});
                         }
                     }, 5000)
