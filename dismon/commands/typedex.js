@@ -4,18 +4,6 @@ const dismondb = require("dismondb");
 module.exports = {
 
     cooldown: 5,
-
-    integration_types: {
-        user: true,
-        guild: true,
-    },
-
-    context_types: {
-		guildChannel: true,
-		botDM: true,
-		privateChannel: true,
-	},
-    
     data: new SlashCommandBuilder()
         .setName('typedex')
         .setDescription('Get information on a specific type')
@@ -44,7 +32,9 @@ module.exports = {
                 { name: 'Steel', value: 'steel' },
                 { name: 'Fairy', value: 'fairy' },
             )
-        ),
+        )
+        .setIntegrationTypes(0,1)
+        .setContexts(0,1,2),
     async execute(interaction) {
         const type = interaction.options.getString('type').toLowerCase();
 
