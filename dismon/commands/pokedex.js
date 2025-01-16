@@ -10,17 +10,6 @@ module.exports = {
 
     cooldown: 5,
 
-    integration_types: {
-        user: true,
-        guild: true,
-    },
-
-    context_types: {
-		guildChannel: true,
-		botDM: true,
-		privateChannel: true,
-	},
-    
     data: new SlashCommandBuilder()
         .setName('pokedex')
         .setDescription('Get information on a specific pokemon')
@@ -29,7 +18,9 @@ module.exports = {
             option.setName('pokemon')
             .setDescription('The pokemon you want information on.')
             .setRequired(true)
-        ),
+        )
+        .setIntegrationTypes(0,1)
+        .setContexts(0,1,2),
     async execute(interaction) {
         const pokemonChoice = interaction.options.getString("pokemon")
         var fileExists = false;
@@ -88,8 +79,6 @@ module.exports = {
                 const canvas = createCanvas(1920, 1080);
                 const context = canvas.getContext('2d');
 
-                //const descriptionBackgroundImage = loadImage('./plugins/dismon/assets/images/descriptionBackground.png');
-
                 const descriptionBackgroundFile = fs.readFileSync('./plugins/dismon/assets/images/descriptionBackground.png')
                 const descriptionBackgroundImage = new Image()
                 descriptionBackgroundImage.src = descriptionBackgroundFile
@@ -114,38 +103,6 @@ module.exports = {
                 context.drawImage(seperaterImage, 1276, 250, 606, 0.5)
                 context.drawImage(seperaterImage, 1276, 300, 606, 0.5)
                 context.drawImage(seperaterImage, 1276, 410, 606, 0.5)
-        
-                /*const descriptionBackground = readFile("./plugins/dismon/assets/images/descriptionBackground.png")
-                const descriptionBackgroundImage = new Image();
-                descriptionBackgroundImage.src = descriptionBackground;
-                context.drawImage(descriptionBackgroundImage, 30, 868, 840, 182)
-
-                console.log("descriptionBackground loaded")
-
-                //const titleBackgroundImage = loadImage('./plugins/dismon/assets/images/titleBackground.png');
-        
-                const titleBackground = readFile("./plugins/dismon/assets/images/titleBackground.png")
-                const titleBackgroundImage = new Image();
-                titleBackgroundImage.src = titleBackground;
-                context.drawImage(titleBackgroundImage, 1276, 30, 612, 63)
-
-                console.log("titleBackground loaded")
-
-                //const infoBackgroundImage = loadImage('./plugins/dismon/assets/images/infoBackground.png');
-        
-                const infoBackground = readFile("./plugins/dismon/assets/images/infoBackground.png")
-                const infoBackgroundImage = new Image();
-                infoBackgroundImage.src = infoBackground;
-                context.drawImage(infoBackgroundImage, 1276, 93, 612, 397)
-
-                console.log("infoBackground loaded")
-
-                //const seperaterImage = loadImage('./plugins/dismon/assets/images/seperater.png');=
-        
-                const seperater = readFile("./plugins/dismon/assets/images/seperater.png")
-                const seperaterImage = new Image();
-                seperaterImage.src = seperater*/
-                console.log("Well at least it loads the images :)")
         
                 context.letterSpacing = "5px"
                 context.font = `30px sans-serif`
@@ -197,10 +154,7 @@ module.exports = {
                         const avatar = loadImage(imgURL).then((image) => {
                             context.drawImage(image, 30, 30, 747, 747)
                         })
-                        //const avatarURL = loadImage(imgURL)
-        
-                        //context.drawImage(avatar, 30, 30, 747, 747)
-        
+                        
                         for(var i = 0; i < response.flavor_text_entries.length; i++) {
                             if(response.flavor_text_entries[i].language.name === "en") {
                                 flavorNumber = i;

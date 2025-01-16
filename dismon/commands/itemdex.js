@@ -5,17 +5,6 @@ var P = new Pokedex();
 module.exports = {
 
     cooldown: 5,
-
-    integration_types: {
-        user: true,
-        guild: true,
-    },
-
-    context_types: {
-		guildChannel: true,
-		botDM: true,
-		privateChannel: true,
-	},
     
     data: new SlashCommandBuilder()
         .setName('itemdex')
@@ -25,7 +14,9 @@ module.exports = {
             option.setName('item')
             .setDescription('The item you want information on.')
             .setRequired(true)
-        ),
+        )
+        .setIntegrationTypes(0,1)
+        .setContexts(0,1,2),
     async execute(interaction) {
         const item = interaction.options.getString('item').toLowerCase();
             P.getItemByName(item.toLowerCase().replaceAll(" ", "-"))
