@@ -2,7 +2,7 @@
     "name": "Dismon",
     "id": "dismon",
     "developer": "Lockyz Media",
-    "version": "2.0.0",
+    "version": "2.0.1",
     "support": "https://github.com/Bit-Plugins/Dismon/issues",
     "update_url": "https://cdn.lockyzmedia.com/discord/bots/bit/plugins/dismon/update.json",
     "events": false,
