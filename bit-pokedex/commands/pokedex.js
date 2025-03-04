@@ -41,7 +41,7 @@ module.exports = {
 
         let pokemon = pokemonChoice.toLowerCase().replaceAll(" ", "-");
 
-        fs.stat('./databases/dismon/assets/generatedImages/'+pokemon+'.png', function(err, stat) {
+        fs.stat('./data/bit-pokedex/assets/generatedImages/'+pokemon+'.png', function(err, stat) {
             if(err == null) {
                 fileExists = true;
             } else if(err.code === 'ENOET') {
@@ -53,9 +53,13 @@ module.exports = {
 
         setTimeout(function () {
             if(fileExists === true) {
-                const attachment = new AttachmentBuilder("./databases/dismon/assets/generatedImages/"+pokemon+".png");
+                const attachment = new AttachmentBuilder("./data/bit-pokedex/assets/generatedImages/"+pokemon+".png");
                 interaction.editReply({ files: [attachment]});
             } else {
+                if(!fs.existsSync("./data/bit-pokedex/assets/generatedImages")) {
+                    fs.mkdirSync("./data/bit-pokedex/assets/generatedImages")
+                }
+                
                 const applyText = (camvas, text) => {
                     const context = canvas.getContext('2d');
                     let fontSize = 70;
@@ -77,22 +81,22 @@ module.exports = {
                 const canvas = createCanvas(1920, 1080);
                 const context = canvas.getContext('2d');
 
-                const descriptionBackgroundFile = fs.readFileSync('./plugins/dismon/assets/images/descriptionBackground.png')
+                const descriptionBackgroundFile = fs.readFileSync('./plugins/bit-pokedex/assets/images/descriptionBackground.png')
                 const descriptionBackgroundImage = new Image()
                 descriptionBackgroundImage.src = descriptionBackgroundFile
                 context.drawImage(descriptionBackgroundImage, 30, 868, 840, 182)
 
-                const titleBackgroundFile = fs.readFileSync('./plugins/dismon/assets/images/titleBackground.png')
+                const titleBackgroundFile = fs.readFileSync('./plugins/bit-pokedex/assets/images/titleBackground.png')
                 const titleBackgroundImage = new Image()
                 titleBackgroundImage.src = titleBackgroundFile
                 context.drawImage(titleBackgroundImage, 1276, 30, 612, 63)
 
-                const infoBackgroundFile = fs.readFileSync('./plugins/dismon/assets/images/infoBackground.png')
+                const infoBackgroundFile = fs.readFileSync('./plugins/bit-pokedex/assets/images/infoBackground.png')
                 const infoBackgroundImage = new Image()
                 infoBackgroundImage.src = infoBackgroundFile
                 context.drawImage(infoBackgroundImage, 1276, 93, 612, 397)
 
-                const seperaterFile = fs.readFileSync('./plugins/dismon/assets/images/seperater.png')
+                const seperaterFile = fs.readFileSync('./plugins/bit-pokedex/assets/images/seperater.png')
                 const seperaterImage = new Image()
                 seperaterImage.src = seperaterFile
                 context.drawImage(seperaterImage, 1276, 93, 606, 0.5)
@@ -209,7 +213,7 @@ module.exports = {
                                 })
                             }, 2000)
                         } else {
-                            core.log(2, "Dismon", true, err)
+                            core.log(2, "bit-pokedex", true, err)
                         }
                     })
                 P.getPokemonByName(pokemon)
@@ -322,7 +326,7 @@ module.exports = {
                                 })
                             }, 2000)
                         } else {
-                            core.log(2, "Dismon", true, err)
+                            core.log(2, "bit-pokedex", true, err)
                         }
                     })
         
@@ -330,7 +334,7 @@ module.exports = {
                         if(continueGeneration) {
                             const attachment = new AttachmentBuilder(canvas.toBuffer('image/png'), { name: pokemon+'.png' });
 
-                            fs.writeFileSync('./databases/dismon/assets/generatedImages/'+pokemon+".png", canvas.toBuffer('image/png'))
+                            fs.writeFileSync('./data/bit-pokedex/assets/generatedImages/'+pokemon+".png", canvas.toBuffer('image/png'))
                             interaction.editReply({ files: [attachment]});
                         }
                     }, 5000)
