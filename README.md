@@ -1,4 +1,4 @@
-# Dismon
+# bit-pokedex
 A Bit Plugin with various Pokemon Commands
 
 # Required Node Modules
