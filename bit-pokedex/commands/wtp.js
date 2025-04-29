@@ -6,27 +6,11 @@ var P = new Pokedex();
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('wtp')
-        /*.setNameLocalizations({
-			pl: 'pies',
-			de: 'hund',
-		})*/
 		.setDescription('WHO\'S THAT POKEMON?')
-        /*.setDescriptionLocalizations({
-			pl: 'Rasa psa',
-			de: 'Hunderasse',
-		})*/
         .setDMPermission(false)
         .addIntegerOption((option) =>
             option.setName('gen-start')
-            /*.setNameLocalizations({
-			    pl: 'pies',
-			    de: 'hund',
-		    })*/
             .setDescription('Generation Start')
-            /*.setDescriptionLocalizations({
-			    pl: 'Rasa psa',
-			    de: 'Hunderasse',
-		    })*/
             .setRequired(false)
             .setMaxValue(9)
             .setMinValue(1)
@@ -34,15 +18,7 @@ module.exports = {
 
         .addIntegerOption((option) =>
             option.setName('gen-end')
-            /*.setNameLocalizations({
-			    pl: 'pies',
-			    de: 'hund',
-		    })*/
             .setDescription('Generation End')
-            /*.setDescriptionLocalizations({
-			    pl: 'Rasa psa',
-			    de: 'Hunderasse',
-		    })*/
             .setRequired(false)
             .setMaxValue(9)
             .setMinValue(1)
@@ -50,15 +26,7 @@ module.exports = {
 
         .addStringOption((option) =>
             option.setName('difficulty')
-            /*.setNameLocalizations({
-			    pl: 'pies',
-			    de: 'hund',
-		    })*/
             .setDescription("What difficulty would you like?")
-            /*.setDescriptionLocalizations({
-			    pl: 'Rasa psa',
-			    de: 'Hunderasse',
-		    })*/
             .setRequired(false)
             .addChoices(
                 { name: "Easy", value: "easy" },
@@ -70,15 +38,7 @@ module.exports = {
 
         .addIntegerOption((option) =>
             option.setName('timer')
-            /*.setNameLocalizations({
-			    pl: 'pies',
-			    de: 'hund',
-		    })*/
             .setDescription("How long would you like the timer to go for?")
-            /*.setDescriptionLocalizations({
-			    pl: 'Rasa psa',
-			    de: 'Hunderasse',
-		    })*/
             .setRequired(false)
             .addChoices(
                 { name: '10 Seconds', value: 10000 },
@@ -103,7 +63,7 @@ module.exports = {
                 var result = Math.floor(Math.random() * max) + min;
                 return result;
             }
-        },
+        }
 
         await interaction.deferReply();
         const client = interaction.client
@@ -125,7 +85,7 @@ module.exports = {
         var forms = false;
         var pot = 5;
         var isLegend = false;
-        var pokedex = "NOTHING TO SEE HERE";
+        var pookedex = "NOTHING TO SEE HERE";
         var diff = "normal"
 
         if(difficulty === "normal") {
@@ -136,7 +96,7 @@ module.exports = {
         }
 
         if(timerInt) {
-           timer = timerInt; 
+            timer = timerInt; 
         }
 
         if(genStart) {
@@ -169,7 +129,6 @@ module.exports = {
                     pokeCountStart = 906;
                 break;
             }
-            //pokeCountStart = genStart;
         }
 
         if(genEnd) {
@@ -202,15 +161,13 @@ module.exports = {
                     pokeCountEnd = 1025;
                 break;
             }
-            //pokeCountEnd = genEnd;
         }
         var pokemon;
-        //var randPoke = Math.floor(Math.random() * pokeCountEnd) + pokeCountStart;
         var randPoke = ranNum(pokeCountStart, pokeCountEnd);
-        //var randPoke = 386;
         var pokeNum = randPoke;
         var imgNum = pokeNum;
         var pokeName = "eevee";
+        var pokeDesc = ""
         if(imgNum < 10) {
             imgNum = "00"+imgNum;
         } else if(imgNum < 100 && imgNum > 10) {
@@ -219,6 +176,13 @@ module.exports = {
 
         P.getPokemonSpeciesByName(pokeNum)
             .then(function(response) {
+                var pokedexes = response.flavor_text_entries
+                for(var i=0, iLen=pokedexes.length; i<iLen; i++) {
+                    if(pokedexes[i].language.name === "en") {
+                        pokeDesc = pokedexes[i].flavor_text.toString().replaceAll("\n", " ").replaceAll("\u000c", " ");
+                    }
+                }
+
                 if(forms === true) {
                     var formCount = response.varieties.length;
                     var formsList = response.varieties;
@@ -234,24 +198,16 @@ module.exports = {
                     }
                 } else if(diff === "hard") {
                     var pokeRegEx = response.name.toUpperCase();
-                    //pokedex = response.flavor_text_entries[0].flavor_text
-                    var pokedexes = response.flavor_text_entries
-                    /*pokedex = pokedexes.filter(obj => {
-                        return obj.language.name === "en"
-                    })*/
 
                     for(var i=0, iLen=pokedexes.length; i<iLen; i++) {
                         if(pokedexes[i].language.name === "en") {
-                            pokedex = pokedexes[i].flavor_text.toString().replaceAll("\n", " ").replaceAll("\u000c", " ").replaceAll(pokeRegEx, "REDACTED");
+                            pookedex = pokedexes[i].flavor_text.toString().replaceAll("\n", " ").replaceAll("\u000c", " ").replaceAll(pokeRegEx, "REDACTED");
                             console.log(pokeRegEx);
                             console.log(response.name.toUpperCase());
-                            console.log(pokedex);
+                            console.log(pookedex);
                             return;
                         }
                     }
-
-                    //console.log(pokedex)
-                    //return;
                 }
                 if(response.is_legendary === true || response.is_mythical === true) {
                     isLegend = true;
@@ -282,7 +238,7 @@ module.exports = {
 
                 const embed = new EmbedBuilder()
                     if(diff === "hard") {
-                        embed.setDescription("# WHO'S THAT POKEMON\n!guess {pokemon} to guess\n\n"+pokedex)
+                        embed.setDescription("# WHO'S THAT POKEMON\n!guess {pokemon} to guess\n\n"+pookedex)
 
                         if(isLegend === true) {
                             embed.setColor('Gold')
@@ -309,8 +265,6 @@ module.exports = {
                         }
                     }
 
-                console.log("https://assets.pokemon.com/assets/cms2/img/pokedex/full/"+imgNum+".png")
-                console.log(pokeName);
                 var isGame = true;
                 interaction.editReply({ embeds: [embed] }).then(() => {
                     const collectorFilter = response => {
@@ -330,17 +284,15 @@ module.exports = {
                         isGame = false;
                         const embed = new EmbedBuilder()
                             embed.setColor('Green')
-                            embed.setDescription("# CORRECT, "+messages.first().member.username+"\nThe answer was "+pokeName)
-                            //embed.setDescription("🎉🎉 Correct, <@"+messages.first().author.id+">, the answer was "+pokeName+" 🎉🎉")
+                            embed.setDescription("# CORRECT, "+messages.first().member.displayName+"\nThe answer was "+pokeName+"\n"+pokeDesc)
                             embed.setImage("https://assets.pokemon.com/assets/cms2/img/pokedex/full/"+imgNum+".png")
                         interaction.editReply({ embeds: [embed] })
-                        messages.first().reply({ content: "🎉🎉 Congratulations "+messages.first().member.username+" you got it right! 🎉🎉\n\nThe answer was "+pokeName })
+                        messages.first().reply({ content: "🎉🎉 Congratulations "+messages.first().member.displayName+" you got it right! 🎉🎉\n\nThe answer was "+pokeName })
                     })
                     .catch(() => {
                         if(isGame === false) return;
                         const embed = new EmbedBuilder()
                             embed.setColor('Red')
-                            //embed.setDescription("You took too long, the answer was "+pokeName)
                             embed.setDescription("# TIMED OUT\nThe answer was "+pokeName)
                             embed.setImage("https://assets.pokemon.com/assets/cms2/img/pokedex/full/"+imgNum+".png")
                         interaction.editReply({ embeds: [embed] })
