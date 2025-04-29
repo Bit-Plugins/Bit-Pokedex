@@ -1,4 +1,4 @@
-const { EmbedBuilder, Permissions, SlashCommandBuilder } = require('discord.js');
+const { EmbedBuilder, Permissions, SlashCommandBuilder, ContainerBuilder, TextDisplayBuilder, MediaGalleryBuilder, MessageFlags, SeparatorBuilder, SeparatorSpacingSize } = require('discord.js');
 const ms = require("ms");
 const Pokedex = require('pokedex-promise-v2');
 var P = new Pokedex();
@@ -65,19 +65,25 @@ module.exports = {
             }
         }
 
-        await interaction.deferReply();
-        const client = interaction.client
-        const genStart = interaction.options.getInteger('gen-start');
-        const genEnd = interaction.options.getInteger('gen-end');
-        const timerInt = interaction.options.getInteger('timer');
         const difficulty = interaction.options.getString('difficulty');
+
         if(difficulty === "help") {
             const embed = new EmbedBuilder()
                 embed.setDescription("# Difficulty Help\n## Easy\nWill show just the picture of the pokemon to guess, the form will not be required.\n\n## Normal\nThe default option, will show the picture of the pokemon to guess, the form however will be required in the guess.\n\n## Hard\nWill show the pokemons pokedex description. The form will not be required.")
 
-            interaction.editReply({ embeds: [embed] })
+            interaction.reply({ embeds: [embed] })
             return;
         }
+
+        await interaction.deferReply({
+            flags: MessageFlags.IsComponentsV2
+        });
+        console.log("Reply Deferred")
+        const client = interaction.client
+        const genStart = interaction.options.getInteger('gen-start');
+        const genEnd = interaction.options.getInteger('gen-end');
+        const timerInt = interaction.options.getInteger('timer');
+        
 
         var pokeCountStart = 1;
         var pokeCountEnd = 1025;
@@ -236,37 +242,92 @@ module.exports = {
                         }
                     })
 
-                const embed = new EmbedBuilder()
+                //const embed = new EmbedBuilder()
+                const container = new ContainerBuilder()
+                const imgURL = "https://assets.pokemon.com/assets/cms2/img/pokedex/full/"+imgNum+".png"
                     if(diff === "hard") {
-                        embed.setDescription("# WHO'S THAT POKEMON\n!guess {pokemon} to guess\n\n"+pookedex)
+                        const titleDisplay = new TextDisplayBuilder()
+                        titleDisplay.setContent(
+                            "# WHO'S THAT POKEMON\n!guess {pokemon} to guess\n\n"+pookedex
+                        )
+                        console.log("Text Display Built")
+                        container.addTextDisplayComponents(titleDisplay);
+                        //container.addComponents(seperator, section);
+
+                        //embed.setDescription("# WHO'S THAT POKEMON\n!guess {pokemon} to guess\n\n"+pookedex)
 
                         if(isLegend === true) {
-                            embed.setColor('Gold')
+                            // container.setAccentColor(255, 215, 0)
+                            console.log("Accent Colour Chosen")
+                            //embed.setColor('Gold')
                         } else {
-                            embed.setColor('DarkButNotBlack')
+                            // container.setAccentColor(88, 101, 242)
+                            //embed.setColor('DarkButNotBlack')
                         }
                     } else {
-                        embed.setTitle("Who's that Pokemon?")
-                        embed.setImage("https://assets.pokemon.com/assets/cms2/img/pokedex/full/"+imgNum+".png")
+                        const titleDisplay = new TextDisplayBuilder()
+                        console.log("Text Display Builder")
+                        const mediaGallery = new MediaGalleryBuilder({
+                            items: [
+                                {
+                                    media: {
+                                        url: imgURL,
+                                    }
+                                }
+                            ]
+                        })
+                        console.log("Media Gallery Built")
+
+                        //embed.setTitle("Who's that Pokemon?")
+                        //embed.setImage("https://assets.pokemon.com/assets/cms2/img/pokedex/full/"+imgNum+".png")
                         if(forms === true) {
-                            embed.setDescription("# WHO'S THAT POKEMON?\n!guess {pokemon}-{form} to guess")
+                            titleDisplay.setContent(
+                                "# WHO'S THAT POKEMON?\n!guess {pokemon}-{form} to guess",
+                            )
+                            console.log("Text Display Built")
+                            //embed.setDescription("# WHO'S THAT POKEMON?\n!guess {pokemon}-{form} to guess")
                         } else {
-                            embed.setDescription("# WHO'S THAT POKEMON\n!guess {pokemon} to guess")
+                            titleDisplay.setContent(
+                                "# WHO'S THAT POKEMON\n!guess {pokemon} to guess",
+                            )
+                            console.log("Text Display Built")
+                            //embed.setDescription("# WHO'S THAT POKEMON\n!guess {pokemon} to guess")
                         }
 
+                        container.addTextDisplayComponents(titleDisplay)
+                        const seperator = new SeparatorBuilder({
+                            spacing: SeparatorSpacingSize.Large,
+                            divider: true,
+                        });
+                        container.addSeparatorComponents(seperator)
+                        console.log("Text Display Added")
+                        //container.addComponents(seperator, section);
+                        container.addMediaGalleryComponents(mediaGallery)
+                        console.log("Media Gallery Added")
+
                         if(isLegend === true) {
-                            embed.setColor('Gold')
+                            // container.setAccentColor(255, 215, 0)
+                            console.log("Accent Colour Set")
+                            //embed.setColor('Gold')
                         } else {
                             if(forms === true) {
-                                embed.setColor('Blue')
+                                // container.setAccentColor(0, 0, 255)
+                                console.log("Accent Colour Set")
+                                //embed.setColor('Blue')
                             } else {
-                                embed.setColor('DarkButNotBlack')
+                                // container.setAccentColor(88, 101, 242)
+                                console.log("Accent Colour Set")
+                                //embed.setColor('DarkButNotBlack')
                             }
                         }
                     }
 
                 var isGame = true;
-                interaction.editReply({ embeds: [embed] }).then(() => {
+                console.log("Sending Reply Payload")
+                interaction.editReply({
+                    flags: MessageFlags.IsComponentsV2,
+                    components: [ container ]
+                }).then(() => {
                     const collectorFilter = response => {
                         if(response.author.bot === false) {
                             if(response.content.includes("!guess")) {
@@ -278,26 +339,124 @@ module.exports = {
                             }
                         }
                     }
+                /*interaction.editReply({ embeds: [embed] }).then(() => {
+                    const collectorFilter = response => {
+                        if(response.author.bot === false) {
+                            if(response.content.includes("!guess")) {
+                                if(response.content.toLowerCase() === "!guess "+pokeName) {
+                                    return true;
+                                } else {
+                                    response.react("❌")
+                                }
+                            }
+                        }
+                    }*/
 
-                interaction.channel.awaitMessages({ filter: collectorFilter, time: timer, max: 1, errors: ['time']})
-                    .then(messages => {
-                        isGame = false;
-                        const embed = new EmbedBuilder()
-                            embed.setColor('Green')
-                            embed.setDescription("# CORRECT, "+messages.first().member.displayName+"\nThe answer was "+pokeName+"\n"+pokeDesc)
-                            embed.setImage("https://assets.pokemon.com/assets/cms2/img/pokedex/full/"+imgNum+".png")
-                        interaction.editReply({ embeds: [embed] })
-                        messages.first().reply({ content: "🎉🎉 Congratulations "+messages.first().member.displayName+" you got it right! 🎉🎉\n\nThe answer was "+pokeName })
-                    })
-                    .catch(() => {
-                        if(isGame === false) return;
-                        const embed = new EmbedBuilder()
-                            embed.setColor('Red')
-                            embed.setDescription("# TIMED OUT\nThe answer was "+pokeName)
-                            embed.setImage("https://assets.pokemon.com/assets/cms2/img/pokedex/full/"+imgNum+".png")
-                        interaction.editReply({ embeds: [embed] })
-                        interaction.followUp({ content: 'The answer was '+pokeName+" you're all wrong" });
-                    })
+                    interaction.channel.awaitMessages({ filter: collectorFilter, time: timer, max: 1, errors: ['time']})
+                        .then(messages => {
+                            isGame = false;
+                            const container = new ContainerBuilder()
+                            const titleDisplay = new TextDisplayBuilder()
+                            const descriptionDisplay = new TextDisplayBuilder()
+                            titleDisplay.setContent(
+                                "# CORRECT, "+messages.first().member.displayName+"\nThe answer was "+pokeName+"\n",
+                            )
+                            const seperator = new SeparatorBuilder({
+                                spacing: SeparatorSpacingSize.Large,
+                                divider: true,
+                            });
+                            descriptionDisplay.setContent(
+                                pokeDesc
+                            )
+                            const mediaGallery = new MediaGalleryBuilder({
+                                items: [
+                                    {
+                                        media: {
+                                            url: imgURL
+                                        }
+                                    }
+                                ]
+                            })
+
+                            container.addTextDisplayComponents(titleDisplay)
+                            container.addSeparatorComponents(seperator)
+                            container.addTextDisplayComponents(descriptionDisplay)
+                            container.addMediaGalleryComponents(mediaGallery)
+                            // container.setAccentColor(0, 255, 0)
+                            /*const embed = new EmbedBuilder()
+                                embed.setColor('Green')
+                                embed.setDescription("# CORRECT, "+messages.first().member.displayName+"\nThe answer was "+pokeName+"\n"+pokeDesc)
+                                embed.setImage("https://assets.pokemon.com/assets/cms2/img/pokedex/full/"+imgNum+".png")
+                            interaction.editReply({ embeds: [embed] })*/
+                            interaction.editReply({
+                                flags: MessageFlags.IsComponentsV2,
+                                components: [ container ]
+                            })
+
+                            const container2 = new ContainerBuilder()
+                            const titleDisplay2 = new TextDisplayBuilder()
+                            titleDisplay2.setContent(
+                                "🎉🎉 Congratulations "+messages.first().member.displayName+" you got it right! 🎉🎉\n\nThe answer was "+pokeName,
+                            )
+                            container2.addTextDisplayComponents(titleDisplay2)
+                            container2.addSeparatorComponents(seperator)
+                            container2.addMediaGalleryComponents(mediaGallery)
+                            messages.first().reply({
+                                flags: MessageFlags.IsComponentsV2,
+                                components: [ container2 ]
+                            })
+                            //messages.first().reply({ content: "🎉🎉 Congratulations "+messages.first().member.displayName+" you got it right! 🎉🎉\n\nThe answer was "+pokeName })
+                        })
+                        .catch(() => {
+                            if(isGame === false) return;
+                            const container = new ContainerBuilder()
+                            const titleDisplay = new TextDisplayBuilder()
+                            const descriptionDisplay = new TextDisplayBuilder()
+                            titleDisplay.setContent(
+                                "# TIMED OUT\nThe answer was "+pokeName+"\n",
+                            )
+
+                            const mediaGallery = new MediaGalleryBuilder({
+                                items: [
+                                    {
+                                        media: {
+                                            url: imgURL
+                                        }
+                                    }
+                                ]
+                            })
+                            descriptionDisplay.setContent(
+                                pokeDesc
+                            )
+
+                            container.addTextDisplayComponents(titleDisplay)
+                            container.addMediaGalleryComponents(mediaGallery)
+                            // container.setAccentColor(255, 0, 0)
+
+                            interaction.editReply({
+                                flags: MessageFlags.IsComponentsV2,
+                                components: [ container ]
+                            })
+
+                            const container2 = new ContainerBuilder()
+                            const titleDisplay2 = new TextDisplayBuilder()
+                            titleDisplay.setContent(
+                                "The answer was "+pokeName+" you're all wrong",
+                            )
+                            container2.addTextDisplayComponents(titleDisplay2)
+                            container2.addTextDisplayComponents(descriptionDisplay)
+                            container2.addMediaGalleryComponents(mediaGallery)
+                            interaction.followUp({
+                                flags: MessageFlags.IsComponentsV2,
+                                components: [ container2 ]
+                            })
+                            /*const embed = new EmbedBuilder()
+                                embed.setColor('Red')
+                                embed.setDescription("# TIMED OUT\nThe answer was "+pokeName)
+                                embed.setImage("https://assets.pokemon.com/assets/cms2/img/pokedex/full/"+imgNum+".png")
+                            interaction.editReply({ embeds: [embed] })
+                            interaction.followUp({ content: 'The answer was '+pokeName+" you're all wrong" });*/
+                        })
             })
         })
     }
